@@ -9,11 +9,9 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     console.log(data.toString());
 
-    const response = "";
-    switch (path) {
-      default:
-        response = statusLine + header + "\r\n" + "HELLO WORLD!\r\n";
-    }
+    let response = "";
+
+    response = statusLine + header + "\r\n" + "HELLO WORLD!\r\n";
 
     socket.write(response);
     socket.end();
@@ -21,7 +19,3 @@ const server = net.createServer((socket) => {
 });
 
 server.listen(8080);
-
-module.exports = {
-  dataToPathParams: dataToPathParams,
-};

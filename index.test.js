@@ -1,4 +1,4 @@
-const { requestParse, getHtmlContent } = require("./index");
+const { requestParse, getHtmlContent, createResponse } = require("./index");
 
 describe("test requestParse", () => {
   test("should return the get request context", () => {
@@ -65,6 +65,17 @@ describe("test getHtmlContent", () => {
 </html>
 `;
     const got = getHtmlContent(path);
+    expect(got).toBe(want);
+  });
+});
+
+describe("test createResponse", () => {
+  test("should return http response", () => {
+    const status = "HTTP/1.1 200 OK\r\n";
+    const body = "hello world";
+    const want = "HTTP/1.1 200 OK\r\nHost: AppServer\r\n\r\nhello world\r\n";
+    const got = createResponse(status, body);
+    console.log(got);
     expect(got).toBe(want);
   });
 });

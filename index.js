@@ -1,4 +1,5 @@
 const net = require("net");
+const fs = require("fs");
 
 const statusLine = "HTTP/1.1 200 OK\r\n";
 const badRequest = "HTTP/1.1 400 Bad Request\r\n";
@@ -34,14 +35,28 @@ const requestParse = (data) => {
   return event;
 };
 
+const getHtmlContent = (path) => {
+  try {
+    buf = fs.readFileSync(path);
+    html = buf.toString();
+    return html;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
-    console.log(data.toString());
+    // console.log(data.toString());
     const event = requestParse(data.toString());
 
     let response = "";
     const [path, method] = [event["path"], event["httpMethod"]];
     switch (path) {
+      case "/index.html":
+        const path = "./public/index.html";
+        response = statusLine + header + "\r\n" + getHtmlContent(path) + "\r\n";
+        break;
       case "/janken":
         const getResult = (hand) => {
           const hands = { "グー": 0, "チョキ": 1, "パー": 2 };
@@ -79,4 +94,5 @@ server.listen(8080);
 
 module.exports = {
   requestParse: requestParse,
+  getHtmlContent: getHtmlContent,
 };

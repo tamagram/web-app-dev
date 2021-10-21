@@ -4,6 +4,7 @@ const fs = require("fs");
 const statusLine = "HTTP/1.1 200 OK\r\n";
 const badRequest = "HTTP/1.1 400 Bad Request\r\n";
 const header = "Host: AppServer\r\n";
+const htmlPath = "./public/index.html";
 
 const requestParse = (data) => {
   const [requestHeaders, requestParams] = data.split("\n\r\n");
@@ -45,6 +46,10 @@ const getHtmlContent = (path) => {
   }
 };
 
+const createResponse = (status, body) => {
+  return (response = status + header + "\r\n" + body + "\r\n");
+};
+
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     // console.log(data.toString());
@@ -54,8 +59,11 @@ const server = net.createServer((socket) => {
     const [path, method] = [event["path"], event["httpMethod"]];
     switch (path) {
       case "/index.html":
-        const path = "./public/index.html";
-        response = statusLine + header + "\r\n" + getHtmlContent(path) + "\r\n";
+        if (method === "GET") {
+          response = createResponse(statusLine, getHtmlContent(htmlPath));
+        } else {
+          response = createResponse(badRequest, "Bad Request");
+        }
         break;
       case "/janken":
         const getResult = (hand) => {
@@ -76,13 +84,13 @@ const server = net.createServer((socket) => {
         if (method === "POST") {
           console.log(event);
           const hand = event["params"]["hand"];
-          response = statusLine + header + "\r\n" + getResult(hand) + "\r\n";
+          response = createResponse(statusLine, getResult(hand));
         } else {
-          response = badRequest + header + "\r\n" + "Bad Request\r\n";
+          response = createResponse(badRequest, "Bad Request");
         }
         break;
       default:
-        response = statusLine + header + "\r\n" + "HELLO WORLD!\r\n";
+        response = createResponse(statusLine, "HELLO WORLD");
     }
 
     socket.write(response);
@@ -95,4 +103,5 @@ server.listen(8080);
 module.exports = {
   requestParse: requestParse,
   getHtmlContent: getHtmlContent,
+  createResponse: createResponse,
 };

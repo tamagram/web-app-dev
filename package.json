@@ -1,0 +1,16 @@
+{
+  "name": "software-ouyou-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "jest"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "net": "^1.0.2"
+  },
+  "devDependencies": {
+    "jest": "^27.3.1"
+  }
+}

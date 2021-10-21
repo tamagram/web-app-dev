@@ -26,7 +26,7 @@ User-Agent: curl/7.68.0
 Accept: */*
 Content-Length: 11
 Content-Type: application/x-www-form-urlencoded
-
+\r
 hand=グー`;
     const want = {
       "httpMethod": "POST",

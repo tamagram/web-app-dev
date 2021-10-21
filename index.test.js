@@ -1,4 +1,4 @@
-const { requestParse } = require("./index");
+const { requestParse, getHtmlContent } = require("./index");
 
 describe("test requestParse", () => {
   test("should return the get request context", () => {
@@ -43,7 +43,28 @@ hand=グー`;
       },
     };
     const got = requestParse(data);
-    console.log(got);
+    // console.log(got);
     expect(got).toStrictEqual(want);
+  });
+});
+
+describe("test getHtmlContent", () => {
+  test("should return html content", () => {
+    const path = "./public/index.html";
+    const want = `<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Hello, World!</title>
+  </head>
+  <body>
+    <h1>Hello, World!</h1>
+  </body>
+</html>
+`;
+    const got = getHtmlContent(path);
+    expect(got).toBe(want);
   });
 });

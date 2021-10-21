@@ -1,10 +1,11 @@
 const net = require("net");
 
 const statusLine = "HTTP/1.1 200 OK\r\n";
+const badRequest = "HTTP/1.1 400 Bad Request\r\n";
 const header = "Host: AppServer\r\n";
 
 const requestParse = (data) => {
-  const [requestHeaders, requestParams] = data.split("\n\n");
+  const [requestHeaders, requestParams] = data.split("\n\r\n");
   const headers = requestHeaders.split("\n");
   const params = requestParams ? requestParams.split("&") : [];
 
@@ -14,13 +15,13 @@ const requestParse = (data) => {
 
   headers.slice(1).forEach((header) => {
     let [key, ...value] = header.split(":");
-    if (value === undefined) {
-      value = "";
-    } else {
-      value = value.join(":");
+    if (key) {
+      if (value !== undefined) {
+        value = value.join(":");
+        value = value.trim();
+        event[key] = value;
+      }
     }
-    value = value.trim();
-    event[key] = value;
   });
 
   if (0 < params.length) {
@@ -38,12 +39,36 @@ const server = net.createServer((socket) => {
     console.log(data.toString());
     const event = requestParse(data.toString());
 
-    switch (event["path"]) {
-      case "/janken":
-    }
     let response = "";
-
-    response = statusLine + header + "\r\n" + "HELLO WORLD!\r\n";
+    const [path, method] = [event["path"], event["httpMethod"]];
+    switch (path) {
+      case "/janken":
+        const getResult = (hand) => {
+          const hands = { "グー": 0, "チョキ": 1, "パー": 2 };
+          const you = hands[hand];
+          const opponent = Math.floor(Math.random() * 3);
+          switch (you - opponent) {
+            case -1:
+            case 2:
+              return "勝ち";
+            case 1:
+            case -2:
+              return "負け";
+            default:
+              return "あいこ";
+          }
+        };
+        if (method === "POST") {
+          console.log(event);
+          const hand = event["params"]["hand"];
+          response = statusLine + header + "\r\n" + getResult(hand) + "\r\n";
+        } else {
+          response = badRequest + header + "\r\n" + "Bad Request\r\n";
+        }
+        break;
+      default:
+        response = statusLine + header + "\r\n" + "HELLO WORLD!\r\n";
+    }
 
     socket.write(response);
     socket.end();

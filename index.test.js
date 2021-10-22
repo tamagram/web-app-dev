@@ -1,4 +1,9 @@
-const { requestParse, getHtmlContent, createResponse } = require("./index");
+const {
+  requestParse,
+  getHtmlContent,
+  createResponse,
+  imgPathToBase64,
+} = require("./index");
 
 describe("test requestParse", () => {
   test("should return the get request context", () => {
@@ -61,6 +66,7 @@ describe("test getHtmlContent", () => {
   </head>
   <body>
     <h1>Hello, World!</h1>
+    <img src="img.png" />
   </body>
 </html>
 `;
@@ -77,5 +83,26 @@ describe("test createResponse", () => {
     const got = createResponse(status, body);
     console.log(got);
     expect(got).toBe(want);
+  });
+});
+
+describe("test imgPathToBase64", () => {
+  test("convert img tag src attribute path to base64 and embed it", () => {
+    const html = `<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Hello, World!</title>
+  </head>
+  <body>
+    <h1>Hello, World!</h1>
+    <img src="img.png" />
+  </body>
+</html>
+    `;
+    const got = imgPathToBase64(html);
+    expect(got).toMatch(/data\:image\/png\;base64\,/);
   });
 });

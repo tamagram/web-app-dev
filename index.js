@@ -38,8 +38,8 @@ const requestParse = (data) => {
 
 const getHtmlContent = (path) => {
   try {
-    buf = fs.readFileSync(path);
-    html = buf.toString();
+    const buf = fs.readFileSync(path);
+    const html = buf.toString();
     return html;
   } catch (e) {
     console.error(e);
@@ -48,6 +48,15 @@ const getHtmlContent = (path) => {
 
 const createResponse = (status, body) => {
   return (response = status + header + "\r\n" + body + "\r\n");
+};
+
+const imgPathToBase64 = (html) => {
+  const target = /img\.png/g;
+  const base64data = fs.readFileSync("./public/img.png", {
+    encoding: "base64",
+  });
+  const newHtml = html.replace(target, "data:image/png;base64," + base64data);
+  return newHtml;
 };
 
 const server = net.createServer((socket) => {
@@ -60,7 +69,8 @@ const server = net.createServer((socket) => {
     switch (path) {
       case "/index.html":
         if (method === "GET") {
-          response = createResponse(statusLine, getHtmlContent(htmlPath));
+          let html = getHtmlContent(htmlPath);
+          response = createResponse(statusLine, imgPathToBase64(html));
         } else {
           response = createResponse(badRequest, "Bad Request");
         }
@@ -82,7 +92,6 @@ const server = net.createServer((socket) => {
           }
         };
         if (method === "POST") {
-          console.log(event);
           const hand = event["params"]["hand"];
           response = createResponse(statusLine, getResult(hand));
         } else {
@@ -104,4 +113,5 @@ module.exports = {
   requestParse: requestParse,
   getHtmlContent: getHtmlContent,
   createResponse: createResponse,
+  imgPathToBase64: imgPathToBase64,
 };
